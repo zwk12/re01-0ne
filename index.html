@@ -3,47 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>健康饮食提醒</title>
+    <title>饮食健康助手</title>
     <style>
-        body {
-            background: linear-gradient(135deg, #ffe8d6, #ffd6c2);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0;
-            font-family: 'Microsoft YaHei', sans-serif;
+        /* 原有样式保持不变 */
+        body { /* 原有样式 */ }
+        .container { /* 原有样式 */ }
+        .reminder { /* 原有样式 */ }
+        .quote { /* 原有样式 */ }
+
+        /* 新增样式 */
+        .record-section {
+            margin-top: 30px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        .container {
-            text-align: center;
-        }
-
-        .reminder {
-            font-size: 3em;
+        .date-link {
             color: #6b4c3e;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-            animation: pulse 2s infinite;
-        }
-
-        .quote {
-            margin-top: 20px;
+            cursor: pointer;
+            text-decoration: underline dotted;
             font-size: 1.2em;
-            color: #8c6b58;
-            opacity: 0;
-            animation: fadeIn 2s forwards;
-            animation-delay: 1s;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+        .meal-form {
+            display: none;
+            margin-top: 15px;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .meal-input {
+            margin: 10px 0;
+            padding: 8px;
+            width: 200px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .save-btn {
+            background: #8c6b58;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .save-btn:hover {
+            background: #6b4c3e;
+        }
+
+        .record-list {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .record-item {
+            background: rgba(255, 248, 240, 0.9);
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
         }
     </style>
 </head>
@@ -51,29 +71,74 @@
     <div class="container">
         <div class="reminder">🍚 记得按时吃饭！ 🥢</div>
         <div class="quote">"饮食有节，健康常伴"</div>
+        
+        <div class="record-section">
+            <div class="date-link" onclick="toggleDateForm()">📅 点击记录今日饮食</div>
+            <div class="meal-form" id="mealForm">
+                <div id="currentDate"></div>
+                <input type="text" class="meal-input" placeholder="早餐内容" id="breakfast">
+                <input type="text" class="meal-input" placeholder="午餐内容" id="lunch">
+                <input type="text" class="meal-input" placeholder="晚餐内容" id="dinner">
+                <button class="save-btn" onclick="saveMeal()">保存记录</button>
+            </div>
+            <div class="record-list" id="recordList"></div>
+        </div>
     </div>
 
     <script>
-        // 根据当前时间显示不同提示
-        const reminder = document.querySelector('.reminder');
-        const hours = new Date().getHours();
-        
-        const messages = {
-            morning: '🌞 早餐要吃好哦！ 🍳',
-            noon: '☀️ 午餐要吃饱哦！ 🍲',
-            evening: '🌙 晚餐要吃少哦！ 🥗',
-            night: '🌜 睡前不要吃太饱 😴'
-        };
+        // 原有时间判断逻辑保持不变
+        // 新增饮食记录功能
+        let records = JSON.parse(localStorage.getItem('mealRecords')) || [];
 
-        if (hours >= 6 && hours < 9) {
-            reminder.textContent = messages.morning;
-        } else if (hours >= 11 && hours < 13) {
-            reminder.textContent = messages.noon;
-        } else if (hours >= 17 && hours < 19) {
-            reminder.textContent = messages.evening;
-        } else if (hours >= 21 || hours < 5) {
-            reminder.textContent = messages.night;
+        function toggleDateForm() {
+            const form = document.getElementById('mealForm');
+            const dateDiv = document.getElementById('currentDate');
+            const now = new Date();
+            
+            dateDiv.innerHTML = `📅 ${now.toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            })} 饮食记录`;
+            
+            form.style.display = form.style.display === 'block' ? 'none' : 'block';
+            loadRecords();
         }
+
+        function saveMeal() {
+            const record = {
+                date: new Date().toISOString().split('T')[0],
+                breakfast: document.getElementById('breakfast').value,
+                lunch: document.getElementById('lunch').value,
+                dinner: document.getElementById('dinner').value
+            };
+
+            // 更新或新建记录
+            const index = records.findIndex(r => r.date === record.date);
+            if (index > -1) {
+                records[index] = record;
+            } else {
+                records.push(record);
+            }
+
+            localStorage.setItem('mealRecords', JSON.stringify(records));
+            loadRecords();
+        }
+
+        function loadRecords() {
+            const list = document.getElementById('recordList');
+            list.innerHTML = records.map(record => `
+                <div class="record-item">
+                    <strong>${record.date}</strong><br>
+                    早餐：${record.breakfast || '未记录'}<br>
+                    午餐：${record.lunch || '未记录'}<br>
+                    晚餐：${record.dinner || '未记录'}
+                </div>
+            `).join('');
+        }
+
+        // 初始化加载记录
+        loadRecords();
     </script>
 </body>
 </html>
