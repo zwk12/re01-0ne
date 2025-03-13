@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健康饮食提醒</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #ffe8d6, #ffd6c2);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .reminder {
+            font-size: 3em;
+            color: #6b4c3e;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            animation: pulse 2s infinite;
+        }
+
+        .quote {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #8c6b58;
+            opacity: 0;
+            animation: fadeIn 2s forwards;
+            animation-delay: 1s;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="reminder">🍚 记得按时吃饭！ 🥢</div>
+        <div class="quote">"饮食有节，健康常伴"</div>
+    </div>
+
+    <script>
+        // 根据当前时间显示不同提示
+        const reminder = document.querySelector('.reminder');
+        const hours = new Date().getHours();
+        
+        const messages = {
+            morning: '🌞 早餐要吃好哦！ 🍳',
+            noon: '☀️ 午餐要吃饱哦！ 🍲',
+            evening: '🌙 晚餐要吃少哦！ 🥗',
+            night: '🌜 睡前不要吃太饱 😴'
+        };
+
+        if (hours >= 6 && hours < 9) {
+            reminder.textContent = messages.morning;
+        } else if (hours >= 11 && hours < 13) {
+            reminder.textContent = messages.noon;
+        } else if (hours >= 17 && hours < 19) {
+            reminder.textContent = messages.evening;
+        } else if (hours >= 21 || hours < 5) {
+            reminder.textContent = messages.night;
+        }
+    </script>
+</body>
+</html>
