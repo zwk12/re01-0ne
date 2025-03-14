@@ -203,23 +203,7 @@
             document.getElementById('recordScreen').style.display = 'none';
             location.reload();
         }
-        // 在calculateCalories函数后添加存储逻辑
-const records = JSON.parse(localStorage.getItem('foodRecords')) || [];
 
-function saveRecord() {
-    if (!currentGender || !currentMealType) return;
-    
-    const record = {
-        date: new Date().toLocaleString(),
-        gender: currentGender,
-        mealType: currentMealType,
-        food: document.getElementById('mealInput').value,
-        calories: calculatedValue
-    };
-    
-    records.push(record);
-    localStorage.setItem('foodRecords', JSON.stringify(records));
-}
     </script>
 </body>
 </html>
