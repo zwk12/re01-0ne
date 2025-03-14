@@ -3,142 +3,225 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>饮食健康助手</title>
+    <title>小熊饮食日记</title>
     <style>
-        /* 原有样式保持不变 */
-        body { /* 原有样式 */ }
-        .container { /* 原有样式 */ }
-        .reminder { /* 原有样式 */ }
-        .quote { /* 原有样式 */ }
-
-        /* 新增样式 */
-        .record-section {
-            margin-top: 30px;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        :root {
+            --primary-color: #FFB6C1;
+            --secondary-color: #FFD700;
+            --bg-color: #FFF5EE;
         }
 
-        .date-link {
-            color: #6b4c3e;
-            cursor: pointer;
-            text-decoration: underline dotted;
-            font-size: 1.2em;
-        }
-
-        .meal-form {
-            display: none;
-            margin-top: 15px;
-        }
-
-        .meal-input {
-            margin: 10px 0;
-            padding: 8px;
-            width: 200px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-
-        .save-btn {
-            background: #8c6b58;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 5px;
-            cursor: pointer;
+        body {
+            background: var(--bg-color);
+            height: 100vh;
+            margin: 0;
+            font-family: 'Comic Sans MS', cursive;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             transition: background 0.3s;
         }
 
-        .save-btn:hover {
-            background: #6b4c3e;
+        .main-screen {
+            text-align: center;
+            padding: 20px;
+            cursor: pointer;
         }
 
-        .record-list {
+        .reminder {
+            font-size: 2.5em;
+            color: #8B4513;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            animation: bounce 2s infinite;
+        }
+
+        .record-screen {
+            display: none;
+            width: 90%;
+            max-width: 500px;
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .gender-select {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .gender-icon {
+            font-size: 40px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .gender-icon:hover {
+            transform: scale(1.2);
+        }
+
+        .meal-input {
+            margin: 15px 0;
+            padding: 12px;
+            width: 100%;
+            border: 2px solid var(--primary-color);
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .time-notice {
+            color: #CD5C5C;
+            margin: 10px 0;
+        }
+
+        .suggestion {
+            background: #FFF0F5;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
             margin-top: 20px;
-            text-align: left;
         }
 
-        .record-item {
-            background: rgba(255, 248, 240, 0.9);
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 8px;
+        button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="reminder">🍚 记得按时吃饭！ 🥢</div>
-        <div class="quote">"饮食有节，健康常伴"</div>
+    <div class="main-screen" onclick="showRecordScreen()">
+        <div class="reminder">🐻 记得按时吃饭哦！ 🍎</div>
+        <div class="quote">点击任意位置开始记录</div>
+    </div>
+
+    <div class="record-screen" id="recordScreen">
+        <div class="gender-select">
+            <span class="gender-icon" onclick="selectGender('boy')">👦</span>
+            <span class="gender-icon" onclick="selectGender('girl')">👧</span>
+        </div>
         
-        <div class="record-section">
-            <div class="date-link" onclick="toggleDateForm()">📅 点击记录今日饮食</div>
-            <div class="meal-form" id="mealForm">
-                <div id="currentDate"></div>
-                <input type="text" class="meal-input" placeholder="早餐内容" id="breakfast">
-                <input type="text" class="meal-input" placeholder="午餐内容" id="lunch">
-                <input type="text" class="meal-input" placeholder="晚餐内容" id="dinner">
-                <button class="save-btn" onclick="saveMeal()">保存记录</button>
-            </div>
-            <div class="record-list" id="recordList"></div>
+        <div id="timeNotice" class="time-notice"></div>
+        
+        <input type="text" class="meal-input" id="mealInput" placeholder="请输入饮食内容">
+        <div class="suggestion" id="suggestion"></div>
+        
+        <div class="action-buttons">
+            <button onclick="calculateCalories()">计算卡路里 🔢</button>
+            <button onclick="exportRecords()">导出记录 📤</button>
+            <button onclick="goBack()">返回 �</button>
         </div>
     </div>
 
     <script>
-        // 原有时间判断逻辑保持不变
-        // 新增饮食记录功能
-        let records = JSON.parse(localStorage.getItem('mealRecords')) || [];
+        let currentGender = null;
+        let currentMealType = null;
+        const FOOD_DB = {
+            '米饭': 116, '鸡蛋': 155, '鸡胸肉': 133,
+            '牛肉': 250, '蔬菜': 30, '苹果': 52
+        };
 
-        function toggleDateForm() {
-            const form = document.getElementById('mealForm');
-            const dateDiv = document.getElementById('currentDate');
-            const now = new Date();
-            
-            dateDiv.innerHTML = `📅 ${now.toLocaleDateString('zh-CN', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            })} 饮食记录`;
-            
-            form.style.display = form.style.display === 'block' ? 'none' : 'block';
-            loadRecords();
+        function showRecordScreen() {
+            document.querySelector('.main-screen').style.display = 'none';
+            document.getElementById('recordScreen').style.display = 'block';
+            checkMealTime();
         }
 
-        function saveMeal() {
-            const record = {
-                date: new Date().toISOString().split('T')[0],
-                breakfast: document.getElementById('breakfast').value,
-                lunch: document.getElementById('lunch').value,
-                dinner: document.getElementById('dinner').value
-            };
-
-            // 更新或新建记录
-            const index = records.findIndex(r => r.date === record.date);
-            if (index > -1) {
-                records[index] = record;
+        function checkMealTime() {
+            const hours = new Date().getHours();
+            let notice = '';
+            
+            if (hours >= 6 && hours < 10) {
+                currentMealType = '早餐';
+                notice = '🍳 现在是早餐时间 (6:00-10:00)';
+            } else if (hours >= 11 && hours < 13) {
+                currentMealType = '午餐';
+                notice = '🍲 现在是午餐时间 (11:00-13:00)';
+            } else if (hours >= 17 && hours < 23) {
+                currentMealType = '晚餐';
+                notice = '🥗 现在是晚餐时间 (17:00-23:00)';
             } else {
-                records.push(record);
+                currentMealType = null;
+                notice = '⏰ 当前不是用餐时间哦～';
             }
-
-            localStorage.setItem('mealRecords', JSON.stringify(records));
-            loadRecords();
+            
+            document.getElementById('timeNotice').textContent = notice;
         }
 
-        function loadRecords() {
-            const list = document.getElementById('recordList');
-            list.innerHTML = records.map(record => `
-                <div class="record-item">
-                    <strong>${record.date}</strong><br>
-                    早餐：${record.breakfast || '未记录'}<br>
-                    午餐：${record.lunch || '未记录'}<br>
-                    晚餐：${record.dinner || '未记录'}
-                </div>
-            `).join('');
+        function selectGender(gender) {
+            currentGender = gender;
+            document.querySelectorAll('.gender-icon').forEach(icon => {
+                icon.style.display = 'none';
+            });
+            document.getElementById('timeNotice').innerHTML += 
+                `<br>已选择：${gender === 'boy' ? '👦 男孩' : '👧 女孩'}`;
         }
 
-        // 初始化加载记录
-        loadRecords();
+        function calculateCalories() {
+            const food = document.getElementById('mealInput').value;
+            const calories = FOOD_DB[food] || '未知';
+            document.getElementById('suggestion').innerHTML = 
+                `🔥 约 ${calories} 大卡<br>${getSuggestion(food)}`;
+        }
+
+        function getSuggestion(food) {
+            const suggestions = {
+                '蔬菜': '建议：多吃蔬菜有益健康！',
+                '牛肉': '建议：适量摄入红肉～',
+                '苹果': '建议：每天一苹果，医生远离我！'
+            };
+            return suggestions[food] || '保持均衡饮食哦～';
+        }
+
+        function exportRecords() {
+            // 此处添加导出逻辑
+            alert('导出功能需要服务器支持，建议使用JSON格式保存数据');
+        }
+
+        function goBack() {
+            document.querySelector('.main-screen').style.display = 'block';
+            document.getElementById('recordScreen').style.display = 'none';
+            location.reload();
+        }
+        // 在calculateCalories函数后添加存储逻辑
+const records = JSON.parse(localStorage.getItem('foodRecords')) || [];
+
+function saveRecord() {
+    if (!currentGender || !currentMealType) return;
+    
+    const record = {
+        date: new Date().toLocaleString(),
+        gender: currentGender,
+        mealType: currentMealType,
+        food: document.getElementById('mealInput').value,
+        calories: calculatedValue
+    };
+    
+    records.push(record);
+    localStorage.setItem('foodRecords', JSON.stringify(records));
+}
     </script>
 </body>
 </html>
+
+
